@@ -29,8 +29,9 @@
       directionalLight.position.set(10, 20, 0);
       scene.add(directionalLight);
 
+      var texture = new THREE.TextureLoader().load( './earth.jpeg' );
       const geometry = new THREE.SphereGeometry(2, 64, 32);
-      const material = new THREE.MeshLambertMaterial( { color: '#0744FA' } );
+      const material = new THREE.MeshLambertMaterial( { map: texture } );
       const sphere = new THREE.Mesh( geometry, material );
       scene.add( sphere );
 
