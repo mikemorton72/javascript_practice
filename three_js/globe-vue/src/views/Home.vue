@@ -4,6 +4,7 @@
     <div id="canvas"></div>
   </div>
 </template>
+
 <style scoped>
 #canvas {
   width: 60vw;
@@ -15,6 +16,7 @@
 
 <script>
 import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 export default {
   name: "Home",
@@ -23,6 +25,7 @@ export default {
   },
   methods: {
     threeJS: function () {
+      // scene and camera
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(
         75,
@@ -30,35 +33,49 @@ export default {
         0.1,
         1000
       );
-      const renderer = new THREE.WebGLRenderer();
+      camera.position.z = 4;
+
+      // renderer
+      const renderer = new THREE.WebGLRenderer({
+        // alpha: true,
+      });
       const container = document.getElementById("canvas");
       const width = container.getBoundingClientRect().width;
       const height = container.getBoundingClientRect().height;
       renderer.setSize(width, height);
       container.appendChild(renderer.domElement);
 
-      const ambientLight = new THREE.AmbientLight(0x404040); // soft white light
+      // lighting
+      const ambientLight = new THREE.AmbientLight({
+        color: 0x404040,
+        intensity: 0.8,
+      });
       scene.add(ambientLight);
 
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
-      directionalLight.position.set(10, 20, 0);
-      scene.add(directionalLight);
+      // earth
+      const textureLoader = new THREE.TextureLoader();
+      const texture = textureLoader.load("/earth.jpeg");
+      const normalMap = textureLoader.load("/earth_normal_map.png");
+      const geometry = new THREE.SphereGeometry(2, 2048, 1024);
+      const material = new THREE.MeshToonMaterial();
+      material.map = texture;
+      material.normalMap = normalMap;
+      const earth = new THREE.Mesh(geometry, material);
+      scene.add(earth);
 
-      var texture = new THREE.TextureLoader().load("/earth_day.jpeg");
-      console.log(texture);
-      const geometry = new THREE.SphereGeometry(2, 64, 32);
-      const material = new THREE.MeshBasicMaterial({ map: texture });
-      const sphere = new THREE.Mesh(geometry, material);
-      scene.add(sphere);
+      // camera controls
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.maxPolarAngle = 0.75 * Math.PI;
+      controls.minPolarAngle = 0.25 * Math.PI;
+      controls.minDistance = 3;
+      controls.update();
 
-      camera.position.z = 5;
-
+      // recursive animation using browser framerate
       function animate() {
         requestAnimationFrame(animate);
 
-        // sphere.rotation.x += 0.01;
-        sphere.rotation.y += 0.005;
-
+        earth.rotateY(0.005);
+        controls.update();
         renderer.render(scene, camera);
       }
       animate();
