@@ -46,18 +46,20 @@ export default {
       container.appendChild(renderer.domElement);
 
       // lighting
-      const ambientLight = new THREE.AmbientLight({
-        color: 0x404040,
-        intensity: 0.8,
-      });
+      const ambientLight = new THREE.AmbientLight();
+      ambientLight.intensity = 0.2;
       scene.add(ambientLight);
+
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+      directionalLight.position.set(1, 0, 1);
+      scene.add(directionalLight);
 
       // earth
       const textureLoader = new THREE.TextureLoader();
-      const texture = textureLoader.load("/earth.jpeg");
+      const texture = textureLoader.load("/earth_day.jpeg");
       const normalMap = textureLoader.load("/earth_normal_map.png");
       const geometry = new THREE.SphereGeometry(2, 2048, 1024);
-      const material = new THREE.MeshToonMaterial();
+      const material = new THREE.MeshStandardMaterial();
       material.map = texture;
       material.normalMap = normalMap;
       const earth = new THREE.Mesh(geometry, material);
